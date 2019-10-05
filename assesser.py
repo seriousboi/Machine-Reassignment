@@ -1,4 +1,5 @@
 from structures import *
+from calculus import *
 
 
 
@@ -18,25 +19,17 @@ def total_cost_assesser(assignment,instance):
 def load_cost_assesser(assignment,instance):
     load_cost= 0
 
+    machines_amount= len(instance.machines)
     resources_amount= len(instance.resources)
     for res_index in range(resources_amount):
-        resource_load_cost= resource_load_cost_assesser(res_index,assignment,instance)
-        load_cost= load_cost + resource_load_cost
+        for mech_index in range(machines_amount):
+            machine_resource_usage= get_resource_usage_on_machine(res_index,mech_index,assignment,instance)
+            soft_cap= instance.machines[mech_index].safety_capacities[res_index]
+            resource_load_cost= max(0,machine_resource_usage-soft_cap)
+        weight= instance.resources[res_index].load_cost
+        load_cost= load_cost + resource_load_cost*weight
 
     return load_cost
-
-
-
-def resource_load_cost_assesser(res_index,assignment,instance):
-    resource_load_cost= 0
-
-    machines_amount= len(instance.machines)
-    for mech_idex in range(machines_amount):
-        resource_usage=0 #reprend ici
-        soft_cap= instance.machines[mech_idex].safety_capacities[res_index]
-        machine_resource_load_cost= max(0,)
-
-    return 0
 
 
 

@@ -7,7 +7,7 @@ from misc import *
 
 
 
-inst= load_instance("b_2")
+inst= load_instance("b_4")
 #inst.display_processes()
 #generate_assignment_file(inst.assignment,"test")
 #inst.assignment[0]=1000
@@ -18,5 +18,8 @@ inst= load_instance("b_2")
 #inst.services[9].spread= 80
 #inst.services[15].dependencies= inst.services[15].dependencies + [20000]
 #print(assignment_checker(inst.assignment,inst,True))
-#print(total_cost_assesser(inst.assignment,inst))
-services_bug()
+#services_bug()
+
+
+
+print(total_cost_assesser(inst.assignment,inst))
