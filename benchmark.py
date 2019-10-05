@@ -10,8 +10,9 @@ def test_instance(instance_name):
     start= time.time()
     inst= load_instance(instance_name)
     load_time= time.time() - start
+    sol= solution(inst.assignment,inst)
     print("load time:",round(load_time,2))
-    assignment_checker(inst.assignment,inst,True)
+    assignment_checker(sol,True)
     check_time= time.time() - (start + load_time)
     print("check time:",round(check_time,2))
     print()

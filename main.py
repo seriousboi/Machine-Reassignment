@@ -7,19 +7,20 @@ from misc import *
 
 
 
-inst= load_instance("b_4")
-#inst.display_processes()
+inst= load_instance("b_2")
+sol= solution(inst.assignment,inst)
+#inst.display_assignment()
 #generate_assignment_file(inst.assignment,"test")
-#inst.assignment[0]=1000
-#inst.assignment= inst.assignment + [0]
-#del(inst.assignment[0])
+#inst.assignment.assignment_list[0]=1000
+#inst.assignment.assignment_list= inst.assignment.assignment_list + [0]
+#del(inst.assignment.assignment_list[0])
 #for i in range(100):
-#    inst.assignment[i]= 0
+#    inst.assignment.assignment_list[i]= 0
 #inst.services[9].spread= 80
 #inst.services[15].dependencies= inst.services[15].dependencies + [20000]
-#print(assignment_checker(inst.assignment,inst,True))
+#print(assignment_checker(sol,True))
 #services_bug()
 
 
 
-print(total_cost_assesser(inst.assignment,inst))
+print(total_cost_assesser(sol))

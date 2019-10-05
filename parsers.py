@@ -164,17 +164,18 @@ def get_costs(txt):
 
 def get_assignment(txt):
     numbers= txt[0].split()
-    assignment= []
+    assignment_list= []
     for ass in numbers:
-        assignment= assignment + [int(ass)]
-    return assignment
+        assignment_list= assignment_list + [int(ass)]
+    ass= assignment(assignment_list)
+    return ass
 
 
 
-def generate_assignment_file(assignment,file_name):
+def generate_assignment_file(ass,file_name):
     file= open("solutions/"+file_name+".txt","w")
-    for ass in assignment:
-        file.write(str(ass)+" ")
+    for assigned in ass.assignment_list:
+        file.write(str(assigned)+" ")
     file.close()
 
 

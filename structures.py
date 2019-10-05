@@ -11,7 +11,22 @@ class Instance():
         self.process_move_cost_weight= process_move_cost #integer
         self.service_move_cost_weight= service_move_cost #integer
         self.machine_move_cost_weight= machine_move_cost #integer
-        self.assignment= assignment #list of integers
+        self.assignment= assignment #assignment
+
+        self.neighborhoods_amount= None #if defined: integer
+
+    def get_neighborhoods_amount(self):
+        if self.neighborhoods_amount != None:
+            return self.neighborhoods_amount
+        else:
+            neighborhoods_amount= -1
+            machines_amount= len(self.machines)
+            for mech_idex in range(machines_amount):
+                mech_neighborhood= self.machines[mech_idex].neighborhood
+                if mech_neighborhood > neighborhoods_amount:
+                    neighborhoods_amount= mech_neighborhood
+            self.neighborhoods_amount= neighborhoods_amount
+            return neighborhoods_amount + 1
 
     def display_resources(self):
         print(len(self.resources))
@@ -42,7 +57,7 @@ class Instance():
         print(self.process_move_cost_weight,self.service_move_cost_weight,self.machine_move_cost_weight)
 
     def display_assignment(self):
-        print(self.assignment)
+        self.assignment.display()
 
     def display(self):
         self.display_assignment()
@@ -114,3 +129,81 @@ class objective():
 
     def display(self):
         print(self.balance,self.balance_cost)
+
+
+
+class assignment():
+    def __init__(self,assignment_list):
+        self.assignment_list= assignment_list #list of integers
+        self.lenght= len(assignment_list) #integer
+        self.machine_assignment_list= None #if defined: list of list of integers
+
+    def display(self):
+        print(self.assignment_list)
+
+    def get_machine_assignment(self,machines_amount):
+        if self.machine_assignment_list != None:
+            return self.machine_assignment_list
+        else:
+            machine_assignment_list= []
+            for mech_index in range(machines_amount):
+                machine_assignment_list= machine_assignment_list + [[]]
+
+            assignment_size= self.lenght
+            for proc_index in range(assignment_size):
+                mech= self.assignment_list[proc_index]
+                machine_assignment_list[mech]= machine_assignment_list[mech] + [proc_index]
+
+            self.machine_assignment_list= machine_assignment_list
+            return machine_assignment_list
+
+
+
+class solution():
+    def __init__(self,ass,inst):
+        self.assignment= ass #assignment
+        self.instance= inst #instance
+        self.resource_usage_on_machine= [] #list of list of if defined: float
+
+        machines_amount= len(inst.machines)
+        resources_amount= len(inst.resources)
+        res_usage_on_mech= []
+        for res_index in range(resources_amount):
+            res_usage_on_mech= res_usage_on_mech + [[]]
+            for mech_index in range(machines_amount):
+                res_usage_on_mech[res_index]= res_usage_on_mech[res_index] + [None]
+        self.resource_usage_on_machine= res_usage_on_mech
+
+    def display(self):
+        self.instance.display()
+        self.assignment.display()
+
+    def get_resource_usage_on_machine(self,res_index,mech_index):
+        if self.resource_usage_on_machine[res_index][mech_index] != None:
+            return self.resource_usage_on_machine
+        else:
+            instance= self.instance
+            ass= self.assignment
+
+            machines_amount= len(instance.machines)
+            machine_assignment= ass.get_machine_assignment(machines_amount)
+            machine_assignment_instance= instance.assignment.get_machine_assignment(machines_amount)
+
+            resource_usage= 0
+            transient_usage= 0
+            for proc_index in machine_assignment[mech_index]:
+                proc= instance.processes[proc_index]
+                proc_requirement= proc.requirements[res_index]
+                resource_usage= resource_usage + proc_requirement
+
+            transient= instance.resources[res_index].transitivity
+            if transient:
+                for proc_index in machine_assignment_instance[mech_index]:
+                    if proc_index not in machine_assignment[mech_index]:
+                        proc= instance.processes[proc_index]
+                        proc_requirement= proc.requirements[res_index]
+                        transient_usage= transient_usage + proc_requirement
+
+            total_usage= resource_usage + transient_usage
+            self.resource_usage_on_machine[res_index][mech_index]= total_usage
+            return total_usage

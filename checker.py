@@ -1,12 +1,11 @@
 from structures import *
-from calculus import *
 
 
 
-def assignment_checker(assignment,instance,check_consistency):
+def assignment_checker(sol,check_consistency):
 
     if check_consistency:
-        if consistency_checker(assignment,instance) == False:
+        if consistency_checker(sol) == False:
             return False
 
     constraints= [capacity_constraints,
@@ -15,17 +14,20 @@ def assignment_checker(assignment,instance,check_consistency):
     dependency_constraints]
 
     for constraint in constraints:
-        if constraint(assignment,instance) == False:
+        if constraint(sol) == False:
             return False
 
     return True
 
 
 
-def consistency_checker(assignment,instance):
+def consistency_checker(sol):
+    instance= sol.instance
+    ass= sol.assignment
+
     processes_amount= len(instance.processes)
     machines_amount= len(instance.machines)
-    assignment_size= len(assignment)
+    assignment_size= len(ass.assignment_list)
 
     if assignment_size > processes_amount:
         print("too many processes,",assignment_size,"instead of",processes_amount)
@@ -36,15 +38,18 @@ def consistency_checker(assignment,instance):
 
 
     for i in range(assignment_size):
-        if assignment[i] >= machines_amount:
-            print("impossible assignment, process",i,"assigned to machine",str(assignment[i])+", only",machines_amount,"machines")
+        if ass.assignment_list[i] >= machines_amount:
+            print("impossible assignment, process",i,"assigned to machine",str(ass.assignment_list[i])+", only",machines_amount,"machines")
             return False
 
     return True
 
 
 
-def capacity_constraints(assignment,instance):
+def capacity_constraints(sol):
+    instance= sol.instance
+    ass= sol.assignment
+
     machines_amount= len(instance.machines)
     resources_amount= len(instance.resources)
 
@@ -52,19 +57,22 @@ def capacity_constraints(assignment,instance):
         mech= instance.machines[mech_index]
         for res_index in range(resources_amount):
 
-            total_usage= get_resource_usage_on_machine(res_index,mech_index,assignment,instance)
+            total_usage= sol.get_resource_usage_on_machine(res_index,mech_index)
             hard_cap= mech.capacities[res_index]
             if total_usage > hard_cap:
-                print("not enough capacity,","resource",res_index,"on machine",mech_index,"with",capacity,"capacity and",total_usage,"usage by processes:",machine_assignment[mech_index])
+                print("not enough capacity,","resource",res_index,"on machine",mech_index,"with",hard_cap,"capacity and",total_usage,"usage by processes:",sol.assignment.machine_assignment_list[mech_index])
                 return False
 
     return True
 
 
 
-def conflict_constraints(assignment,instance):
+def conflict_constraints(sol):
+    instance= sol.instance
+    ass= sol.assignment
+
     machines_amount= len(instance.machines)
-    machine_assignment= get_machine_assignment(assignment,machines_amount)
+    machine_assignment= ass.get_machine_assignment(machines_amount)
 
     for mech_index in range(machines_amount):
         services_on_mech= []
@@ -84,17 +92,20 @@ def conflict_constraints(assignment,instance):
 
 
 
-def spread_constraints(assignment,instance):
+def spread_constraints(sol):
+    instance= sol.instance
+    ass= sol.assignment
+
     services_locations= []
     services_amount= len(instance.services)
     for serv_index in range(services_amount):
         services_locations= services_locations + [[]]
 
-    processes_amount= len(assignment)
+    processes_amount= ass.lenght
     for proc_index in range(processes_amount):
         proc= instance.processes[proc_index]
         serv_index= proc.service
-        mech_idex= assignment[proc_index]
+        mech_idex= ass.assignment_list[proc_index]
         mech= instance.machines[mech_idex]
         location= mech.location
 
@@ -112,17 +123,20 @@ def spread_constraints(assignment,instance):
 
 
 
-def dependency_constraints(assignment,instance):
+def dependency_constraints(sol):
+    instance= sol.instance
+    ass= sol.assignment
+
     neighborhoods_services= []
-    neighborhoods_amount= find_neighborhoods_amount(instance)
+    neighborhoods_amount= instance.get_neighborhoods_amount()
     for neighborhood in range(neighborhoods_amount):
         neighborhoods_services= neighborhoods_services + [[]]
 
-    processes_amount= len(assignment)
+    processes_amount= ass.lenght
     for proc_index in range(processes_amount):
         proc= instance.processes[proc_index]
         serv_index= proc.service
-        mech_idex= assignment[proc_index]
+        mech_idex= ass.assignment_list[proc_index]
         mech= instance.machines[mech_idex]
         neighborhood= mech.neighborhood
 
@@ -137,3 +151,11 @@ def dependency_constraints(assignment,instance):
                     print("dependency missing, service",dependency,"missing for service",serv_index,"in neighborhood",neighborhood)
                     return False
     return True
+
+
+
+def find(list,goal):
+    for i in range(len(list)):
+        if list[i] == goal:
+            return i
+    return None
