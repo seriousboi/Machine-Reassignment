@@ -15,19 +15,6 @@ class Instance():
 
         self.neighborhoods_amount= None #if defined: integer
 
-    def get_neighborhoods_amount(self):
-        if self.neighborhoods_amount != None:
-            return self.neighborhoods_amount
-        else:
-            neighborhoods_amount= -1
-            machines_amount= len(self.machines)
-            for mech_idex in range(machines_amount):
-                mech_neighborhood= self.machines[mech_idex].neighborhood
-                if mech_neighborhood > neighborhoods_amount:
-                    neighborhoods_amount= mech_neighborhood
-            self.neighborhoods_amount= neighborhoods_amount
-            return neighborhoods_amount + 1
-
     def display_resources(self):
         print(len(self.resources))
         for res in self.resources:
@@ -74,6 +61,19 @@ class Instance():
         print(len(self.services),"services")
         print(len(self.processes),"processes")
         print(len(self.objectives),"objectives")
+
+    def get_neighborhoods_amount(self):
+        if self.neighborhoods_amount != None:
+            return self.neighborhoods_amount
+        else:
+            neighborhoods_amount= -1
+            machines_amount= len(self.machines)
+            for mech_index in range(machines_amount):
+                mech_neighborhood= self.machines[mech_index].neighborhood
+                if mech_neighborhood > neighborhoods_amount:
+                    neighborhoods_amount= mech_neighborhood
+            self.neighborhoods_amount= neighborhoods_amount
+            return neighborhoods_amount + 1
 
 
 
@@ -164,23 +164,24 @@ class solution():
         self.assignment= ass #assignment
         self.instance= inst #instance
         self.resource_usage_on_machine= [] #list of list of if defined: float
+        self.services_on_machine= [] #list of if defined: list of int
 
         machines_amount= len(inst.machines)
         resources_amount= len(inst.resources)
-        res_usage_on_mech= []
+
         for res_index in range(resources_amount):
-            res_usage_on_mech= res_usage_on_mech + [[]]
-            for mech_index in range(machines_amount):
-                res_usage_on_mech[res_index]= res_usage_on_mech[res_index] + [None]
-        self.resource_usage_on_machine= res_usage_on_mech
+            self.resource_usage_on_machine= self.resource_usage_on_machine + [[None]*machines_amount]
+        self.services_on_machine= [None]*machines_amount
 
     def display(self):
         self.instance.display()
         self.assignment.display()
 
     def get_resource_usage_on_machine(self,res_index,mech_index):
+
         if self.resource_usage_on_machine[res_index][mech_index] != None:
-            return self.resource_usage_on_machine
+            return self.resource_usage_on_machine[res_index][mech_index]
+
         else:
             instance= self.instance
             ass= self.assignment
@@ -207,3 +208,24 @@ class solution():
             total_usage= resource_usage + transient_usage
             self.resource_usage_on_machine[res_index][mech_index]= total_usage
             return total_usage
+
+    def get_services_on_machine(self,mech_index):
+
+        if self.services_on_machine[mech_index] != None:
+            return self.services_on_machine[mech_index]
+
+        else:
+            instance= self.instance
+            ass= self.assignment
+
+            servs_on_mech= []
+            machines_amount= len(instance.machines)
+            machine_assignment= ass.get_machine_assignment(machines_amount)[mech_index]
+            assigned_processes_ammount= len(machine_assignment)
+            for assigned_proc_index in range(assigned_processes_ammount):
+                proc_index= machine_assignment[assigned_proc_index]
+                serv= instance.processes[proc_index].service
+                servs_on_mech= servs_on_mech + [serv]
+
+            self.services_on_machine[mech_index]= servs_on_mech
+            return servs_on_mech

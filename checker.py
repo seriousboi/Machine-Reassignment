@@ -75,18 +75,17 @@ def conflict_constraints(sol):
     machine_assignment= ass.get_machine_assignment(machines_amount)
 
     for mech_index in range(machines_amount):
-        services_on_mech= []
 
-        assigned_processes_ammount= len(machine_assignment[mech_index])
-        for assigned_proc_index in range(assigned_processes_ammount):
-            proc_index= machine_assignment[mech_index][assigned_proc_index]
-            serv= instance.processes[proc_index].service
+        servs_on_mech= sol.get_services_on_machine(mech_index)
+        servs_on_mech_amount= len(servs_on_mech)
+        for serv_on_mech_index in range(servs_on_mech_amount):
+            serv= servs_on_mech[serv_on_mech_index]
 
-            if serv in services_on_mech:
-                proc_index_2= machine_assignment[mech_index][find(services_on_mech,serv)]
-                print("conflict, processes",proc_index,"and",proc_index_2,"from service",serv,"on machine",mech_index)
+            if serv in servs_on_mech[0:serv_on_mech_index]:
+                proc_index_1= machine_assignment[mech_index][find(servs_on_mech,serv)]
+                proc_index_2= machine_assignment[mech_index][serv_on_mech_index]
+                print("conflict, processes",proc_index_1,"and",proc_index_2,"from service",serv,"on machine",mech_index)
                 return False
-            services_on_mech= services_on_mech + [serv]
 
     return True
 
@@ -105,8 +104,8 @@ def spread_constraints(sol):
     for proc_index in range(processes_amount):
         proc= instance.processes[proc_index]
         serv_index= proc.service
-        mech_idex= ass.assignment_list[proc_index]
-        mech= instance.machines[mech_idex]
+        mech_index= ass.assignment_list[proc_index]
+        mech= instance.machines[mech_index]
         location= mech.location
 
         if location not in services_locations[serv_index]:
@@ -136,8 +135,8 @@ def dependency_constraints(sol):
     for proc_index in range(processes_amount):
         proc= instance.processes[proc_index]
         serv_index= proc.service
-        mech_idex= ass.assignment_list[proc_index]
-        mech= instance.machines[mech_idex]
+        mech_index= ass.assignment_list[proc_index]
+        mech= instance.machines[mech_index]
         neighborhood= mech.neighborhood
 
         if serv_index not in neighborhoods_services[neighborhood]:
