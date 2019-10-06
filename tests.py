@@ -58,6 +58,14 @@ def test_consistency_checker(inst,times):
 
 
 
+def test_capacity_constraints(inst,times):
+    print("testing capacity constraints")
+    print()
+    for time in range(times):
+        inst_1= deepcopy(inst)
+
+
+
 
 
 
