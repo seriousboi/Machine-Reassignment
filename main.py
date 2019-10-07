@@ -10,3 +10,6 @@ inst= load_instance("b_2")
 #sol= solution(inst.assignment,inst)
 #print(total_cost_assesser(sol))
 test_consistency_checker(inst,10)
+
+
+#test
