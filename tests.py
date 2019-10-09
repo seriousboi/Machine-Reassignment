@@ -7,23 +7,49 @@ from time import *
 from copy import *
 
 
-#inst= load_instance("b_2")
-#sol= solution(inst.assignment,inst)
-#inst.display_assignment()
-#generate_assignment_file(inst.assignment,"test")
-#inst.assignment.assignment_list[0]=1000
-#inst.assignment.assignment_list= inst.assignment.assignment_list + [0]
-#del(inst.assignment.assignment_list[0])
-#for i in range(100):
-#    inst.assignment.assignment_list[i]= 0
-#ma= sol.assignment.get_machine_assignment(len(sol.instance.machines))
-#sol.instance.processes[ma[2][0]].service= 12
-#sol.instance.processes[ma[2][1]].service= 12
+
 #inst.services[9].spread= 80
 #inst.services[15].dependencies= inst.services[15].dependencies + [20000]
 #print(assignment_checker(sol,True))
 #services_bug()
 
+
+def test_all_checkers_inst(times):
+    for i in range(10):
+        if i < 5:
+            instance_name= "a1_"+str(i+1)
+        else:
+            instance_name= "a2_"+str(i-4)
+        print("loading for test instance "+instance_name)
+        print()
+        inst= load_instance(instance_name)
+        if test_all_checkers(inst,times) == False:
+            return False
+    for i in range(10):
+        instance_name= "b_"+str(i+1)
+        print("loading for test instance "+instance_name)
+        print()
+        inst= load_instance(instance_name)
+        if test_all_checkers(inst,times) == False:
+            ("error on instance "+instance_name)
+            return False
+    return True
+
+
+
+
+def test_all_checkers(inst,times):
+
+    tests= [test_consistency_checker,
+    test_capacity_constraints_checker,
+    test_conflict_constraints_checker,
+    test_spread_constraints_checker,
+    test_dependency_costraints_checker]
+
+    for test in tests:
+        if test(inst,times) == False:
+            return False
+    return True
 
 
 
@@ -41,14 +67,14 @@ def test_consistency_checker(inst,times):
         rand_ass= randrange(machines_amount,machines_amount*2)
         rand_index= randrange(processes_amount)
         inst_1.assignment.assignment_list[rand_index]= rand_ass
-        print("proc",rand_index,"mech",rand_ass)
+        print("proc:",rand_index,"mech:",rand_ass)
         if consistency_checker(sol_1) == True:
             print("consistency check: no error showing up")
             return False
 
         rand_del= randrange(processes_amount)
         del(inst_2.assignment.assignment_list[rand_del])
-        print("proc",rand_del)
+        print("proc:",rand_del)
         if consistency_checker(sol_2) == True:
             print("consistency check: no error showing up")
             return False
@@ -58,52 +84,128 @@ def test_consistency_checker(inst,times):
 
 
 
-def test_capacity_constraints(inst,times):
-    print("testing capacity constraints")
+def test_capacity_constraints_checker(inst,times):
+    print("testing capacity constraints checker")
     print()
     for time in range(times):
         inst_1= deepcopy(inst)
+        sol_1= solution(inst_1.assignment,inst_1)
+
+        machines_amount= len(inst_1.machines)
+        resources_amount= len(inst_1.resources)
+        mech_index= randrange(machines_amount)
+        res_index= randrange(resources_amount)
+        mech_ass= inst_1.assignment.get_machine_assignment(machines_amount)
+
+        processes_amount= len(mech_ass[mech_index])
+        if processes_amount>0:
+            proc_index= mech_ass[mech_index][randrange(processes_amount)]
+
+            hard_cap= inst_1.machines[mech_index].capacities[res_index]
+            inst_1.processes[proc_index].requirements[res_index]= hard_cap + 1
+            print("mech:",mech_index,"res:",res_index,"proc:",proc_index,"cap:",hard_cap)
+            if capacity_constraints(sol_1) == True:
+                print("capacity constraints check: no error showing up")
+                return False
+        print()
+    return True
 
 
 
+def test_conflict_constraints_checker(inst,times):
+    print("testing conflict constraints checker")
+    print()
+    for time in range(times):
+        inst_1= deepcopy(inst)
+        sol_1= solution(inst_1.assignment,inst_1)
+
+        machines_amount= len(inst_1.machines)
+        services_amount= len(inst_1.services)
+        mech_index= randrange(machines_amount)
+        serv_index= randrange(services_amount)
+
+        mech_ass= inst_1.assignment.get_machine_assignment(machines_amount)
+        processes_amount= len(mech_ass[mech_index])
+        if processes_amount>=2:
+            proc_index_1= mech_ass[mech_index][randrange(processes_amount)]
+            proc_index_2= mech_ass[mech_index][randrange(processes_amount)]
+            while proc_index_1 == proc_index_2:
+                proc_index_2= mech_ass[mech_index][randrange(processes_amount)]
+
+            inst_1.processes[proc_index_1].service= serv_index
+            inst_1.processes[proc_index_2].service= serv_index
+
+            print("mech:",mech_index,"serv:",serv_index,"proc_1:",proc_index_1,"proc_2:",proc_index_2)
+            if conflict_constraints(sol_1) == True:
+                print("conflict constraints constraints check: no error showing up")
+                return False
+        print()
+    return True
 
 
 
-def test_instance(instance_name):
+def test_spread_constraints_checker(inst,times):
+    print("testing spread constraints checker")
+    print()
+    for time in range(times):
+        inst_1= deepcopy(inst)
+        sol_1= solution(inst_1.assignment,inst_1)
+
+        machines_amount= len(inst_1.machines)
+        services_amount= len(inst_1.services)
+        mech_index= randrange(machines_amount)
+        serv_index= randrange(services_amount)
+
+    return True
+
+
+
+def test_dependency_costraints_checker(inst,times):
+    print("testing dependency constraints checker")
+    print()
+    for time in range(times):
+        inst_1= deepcopy(inst)
+        sol_1= solution(inst_1.assignment,inst_1)
+
+    return True
+
+
+
+def test_instance_speed(instance_name):
     print("instance "+instance_name)
-    start= time.time()
+    start= time()
     inst= load_instance(instance_name)
-    load_time= time.time() - start
+    load_time= time() - start
     sol= solution(inst.assignment,inst)
     print("load time:",round(load_time,2))
     assignment_checker(sol,True)
-    check_time= time.time() - (start + load_time)
+    check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
     print()
     return load_time,check_time
 
 
 
-def test_a():
+def test_a_speed():
     for i in range(10):
         if i < 5:
             instance_name= "a1_"+str(i+1)
         else:
             instance_name= "a2_"+str(i-4)
-        test_instance(instance_name)
+        test_instance_speed(instance_name)
 
 
 
-def test_b():
+def test_b_speed():
     for i in range(10):
         instance_name= "b_"+str(i+1)
-        test_instance(instance_name)
+        test_instance_speed(instance_name)
 
 
 
-def test_all():
-    test_a()
-    test_b()
+def test_all_speed():
+    test_a_speed()
+    test_b_speed()
 
 
 

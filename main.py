@@ -6,11 +6,7 @@ from tests import *
 
 
 
-inst= load_instance("b_2")
+#inst= load_instance("b_2")
 #sol= solution(inst.assignment,inst)
 #print(total_cost_assesser(sol))
-test_consistency_checker(inst,10)
-
-
-#test
-#slt c fabienn
+test_all_checkers_inst(100)
