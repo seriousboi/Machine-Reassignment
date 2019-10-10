@@ -151,11 +151,20 @@ def test_spread_constraints_checker(inst,times):
         inst_1= deepcopy(inst)
         sol_1= solution(inst_1.assignment,inst_1)
 
-        machines_amount= len(inst_1.machines)
         services_amount= len(inst_1.services)
-        mech_index= randrange(machines_amount)
         serv_index= randrange(services_amount)
+        spread_min= inst_1.services[serv_index].spread
+        add_spread= randrange(0,spread_min+1) + 1
+        spread= len(sol_1.get_services_locations()[serv_index])
 
+        total_spread= inst_1.services[serv_index].spread + spread + add_spread
+        inst_1.services[serv_index].spread= total_spread
+
+        print("serv:",serv_index,"spread_min:",spread_min,"spread:",spread,"add_spread:",add_spread,"total spread:",total_spread)
+        if spread_constraints(sol_1) == True:
+            print("spread constraints constraints check: no error showing up")
+            return False
+        print()
     return True
 
 
@@ -166,6 +175,24 @@ def test_dependency_costraints_checker(inst,times):
     for time in range(times):
         inst_1= deepcopy(inst)
         sol_1= solution(inst_1.assignment,inst_1)
+
+        neighborhoods_amount= inst_1.get_neighborhoods_amount()
+        neighborhood= randrange(neighborhoods_amount)
+        nei_servs= sol_1.get_neighborhoods_services()
+        neighborhood_services_amount= len(nei_servs[neighborhood])
+        serv_index= nei_servs[neighborhood][randrange(neighborhood_services_amount)]
+        services_amount= len(inst_1.services)
+
+        new_dep_index= randrange(services_amount+1)
+        while new_dep_index in nei_servs[neighborhood]:
+            new_dep_index= randrange(services_amount+1)
+
+        inst_1.services[serv_index].dependencies.append(new_dep_index)
+        print("neighborhood:",neighborhood,"service:",serv_index,"dependency:",new_dep_index)
+        if dependency_constraints(sol_1) == True:
+            print("dependency constraints constraints check: no error showing up")
+            return False
+        print()
 
     return True
 

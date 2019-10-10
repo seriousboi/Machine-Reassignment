@@ -95,27 +95,14 @@ def spread_constraints(sol):
     instance= sol.instance
     ass= sol.assignment
 
-    services_locations= []
+    servs_loc= sol.get_services_locations()
+
     services_amount= len(instance.services)
     for serv_index in range(services_amount):
-        services_locations= services_locations + [[]]
-
-    processes_amount= ass.lenght
-    for proc_index in range(processes_amount):
-        proc= instance.processes[proc_index]
-        serv_index= proc.service
-        mech_index= ass.assignment_list[proc_index]
-        mech= instance.machines[mech_index]
-        location= mech.location
-
-        if location not in services_locations[serv_index]:
-            services_locations[serv_index]= services_locations[serv_index] + [location]
-
-    for serv_index in range(services_amount):
         spread_min= instance.services[serv_index].spread
-        spreading= len(services_locations[serv_index])
+        spreading= len(servs_loc[serv_index])
         if spreading < spread_min:
-            print("service",serv_index,"not spread engouh,",spreading,"instead of",spread_min,"locations covered:",services_locations[serv_index])
+            print("service",serv_index,"not spread engouh,",spreading,"instead of",spread_min,"locations covered:",servs_loc[serv_index])
             return False
 
     return True
@@ -126,27 +113,14 @@ def dependency_constraints(sol):
     instance= sol.instance
     ass= sol.assignment
 
-    neighborhoods_services= []
+    nei_servs= sol.get_neighborhoods_services()
+
     neighborhoods_amount= instance.get_neighborhoods_amount()
     for neighborhood in range(neighborhoods_amount):
-        neighborhoods_services= neighborhoods_services + [[]]
-
-    processes_amount= ass.lenght
-    for proc_index in range(processes_amount):
-        proc= instance.processes[proc_index]
-        serv_index= proc.service
-        mech_index= ass.assignment_list[proc_index]
-        mech= instance.machines[mech_index]
-        neighborhood= mech.neighborhood
-
-        if serv_index not in neighborhoods_services[neighborhood]:
-            neighborhoods_services[neighborhood]= neighborhoods_services[neighborhood] + [serv_index]
-
-    for neighborhood in range(neighborhoods_amount):
-        for serv_index in neighborhoods_services[neighborhood]:
+        for serv_index in nei_servs[neighborhood]:
             dependencies= instance.services[serv_index].dependencies
             for dependency in dependencies:
-                if dependency not in neighborhoods_services[neighborhood]:
+                if dependency not in nei_servs[neighborhood]:
                     print("dependency missing, service",dependency,"missing for service",serv_index,"in neighborhood",neighborhood)
                     return False
     return True

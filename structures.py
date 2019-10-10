@@ -72,7 +72,7 @@ class Instance():
                 mech_neighborhood= self.machines[mech_index].neighborhood
                 if mech_neighborhood > neighborhoods_amount:
                     neighborhoods_amount= mech_neighborhood
-            self.neighborhoods_amount= neighborhoods_amount
+            self.neighborhoods_amount= neighborhoods_amount + 1
             return neighborhoods_amount + 1
 
 
@@ -163,8 +163,10 @@ class solution():
     def __init__(self,ass,inst):
         self.assignment= ass #assignment
         self.instance= inst #instance
-        self.resource_usage_on_machine= [] #list of list of if defined: float
+        self.resource_usage_on_machine= [] #list of list of if defined: int
         self.services_on_machine= [] #list of if defined: list of int
+        self.services_locations= None #if defined: list of list of int
+        self.neighborhoods_services= None #if defined: list of list of int
 
         machines_amount= len(inst.machines)
         resources_amount= len(inst.resources)
@@ -173,9 +175,12 @@ class solution():
             self.resource_usage_on_machine= self.resource_usage_on_machine + [[None]*machines_amount]
         self.services_on_machine= [None]*machines_amount
 
+
     def display(self):
         self.instance.display()
         self.assignment.display()
+
+
 
     def get_resource_usage_on_machine(self,res_index,mech_index):
 
@@ -209,6 +214,8 @@ class solution():
             self.resource_usage_on_machine[res_index][mech_index]= total_usage
             return total_usage
 
+
+
     def get_services_on_machine(self,mech_index):
 
         if self.services_on_machine[mech_index] != None:
@@ -229,3 +236,61 @@ class solution():
 
             self.services_on_machine[mech_index]= servs_on_mech
             return servs_on_mech
+
+
+
+    def get_services_locations(self):
+
+        if self.services_locations != None:
+            return self.services_locations
+
+        else:
+            instance= self.instance
+            ass= self.assignment
+
+            self.services_locations= []
+            services_amount= len(instance.services)
+            for serv_index in range(services_amount):
+                self.services_locations= self.services_locations + [[]]
+
+            processes_amount= ass.lenght
+            for proc_index in range(processes_amount):
+                proc= instance.processes[proc_index]
+                serv_index= proc.service
+                mech_index= ass.assignment_list[proc_index]
+                mech= instance.machines[mech_index]
+                location= mech.location
+
+                if location not in self.services_locations[serv_index]:
+                    self.services_locations[serv_index]= self.services_locations[serv_index] + [location]
+
+            return self.services_locations
+
+
+
+    def get_neighborhoods_services(self):
+
+        if self.neighborhoods_services != None:
+            return self.neighborhoods_services
+
+        else:
+            instance= self.instance
+            ass= self.assignment
+
+            neighborhoods_amount= self.instance.get_neighborhoods_amount()
+            self.neighborhoods_services= []
+            for nei in range(neighborhoods_amount):
+                self.neighborhoods_services= self.neighborhoods_services + [[]]
+
+            processes_amount= ass.lenght
+            for proc_index in range(processes_amount):
+                proc= instance.processes[proc_index]
+                serv_index= proc.service
+                mech_index= ass.assignment_list[proc_index]
+                mech= instance.machines[mech_index]
+                neighborhood= mech.neighborhood
+
+                if serv_index not in self.neighborhoods_services[neighborhood]:
+                    self.neighborhoods_services[neighborhood]= self.neighborhoods_services[neighborhood] + [serv_index]
+
+            return self.neighborhoods_services
