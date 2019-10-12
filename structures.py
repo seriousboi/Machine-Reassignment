@@ -13,6 +13,7 @@ class Instance():
         self.machine_move_cost_weight= machine_move_cost #integer
         self.assignment= assignment #assignment
 
+        self.services_processes= None #if defined: list of list of integers
         self.neighborhoods_amount= None #if defined: integer
 
     def display_resources(self):
@@ -63,8 +64,10 @@ class Instance():
         print(len(self.objectives),"objectives")
 
     def get_neighborhoods_amount(self):
+
         if self.neighborhoods_amount != None:
             return self.neighborhoods_amount
+
         else:
             neighborhoods_amount= -1
             machines_amount= len(self.machines)
@@ -74,6 +77,34 @@ class Instance():
                     neighborhoods_amount= mech_neighborhood
             self.neighborhoods_amount= neighborhoods_amount + 1
             return neighborhoods_amount + 1
+
+    def get_services_processes(self):
+
+        if self.services_processes != None:
+            return self.services_processes
+
+        else:
+
+            services_amount= len(self.services)
+            processes_amount= len(self.processes)
+            self.services_processes= []
+            for i in range(services_amount):
+                self.services_processes= self.services_processes + [[]]
+
+            for proc_index in range(processes_amount):
+                serv_index= self.processes[proc_index].service
+                self.services_processes[serv_index]= self.services_processes[serv_index] + [proc_index]
+
+            return self.services_processes
+
+
+
+
+
+
+
+
+
 
 
 
@@ -123,9 +154,9 @@ class process():
 
 
 class objective():
-    def __init__(self,balance,balance_cost):
+    def __init__(self,balance,weight):
         self.balance= balance #list of three integers
-        self.balance_cost= balance_cost #integer
+        self.weight= weight  #integer
 
     def display(self):
         print(self.balance,self.balance_cost)
