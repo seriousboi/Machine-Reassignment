@@ -99,15 +99,6 @@ class Instance():
 
 
 
-
-
-
-
-
-
-
-
-
 class resource():
     def __init__(self,transitivity,load_cost):
         self.transitivity= transitivity #bool

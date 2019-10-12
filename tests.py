@@ -208,31 +208,24 @@ def test_instance_speed(instance_name):
     assignment_checker(sol,True)
     check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
+    total_cost_assesser(sol)
+    assessment_time= time() - (start + load_time + check_time)
+    print("assessment time:",round(assessment_time,2))
     print()
     return load_time,check_time
 
 
 
-def test_a_speed():
+def test_all_speed():
     for i in range(10):
         if i < 5:
             instance_name= "a1_"+str(i+1)
         else:
             instance_name= "a2_"+str(i-4)
         test_instance_speed(instance_name)
-
-
-
-def test_b_speed():
     for i in range(10):
         instance_name= "b_"+str(i+1)
         test_instance_speed(instance_name)
-
-
-
-def test_all_speed():
-    test_a_speed()
-    test_b_speed()
 
 
 
@@ -253,3 +246,49 @@ def services_bug():
         print("true services:",true_serv)
         print("empty services:",empty_serv)
         print()
+
+
+
+def location_neighborhood_study():
+    for i in range(10):
+        if i < 5:
+            instance_name= "a1_"+str(i+1)
+        else:
+            instance_name= "a2_"+str(i-4)
+        location_neighborhood_study_instance(instance_name)
+
+    for i in range(10):
+        instance_name= "b_"+str(i+1)
+        location_neighborhood_study_instance(instance_name)
+
+
+
+def location_neighborhood_study_instance(instance_name):
+    print(instance_name+":")
+    inst= load_instance(instance_name)
+    inclusion= {}
+
+    machines_amount= len(inst.machines)
+    for mech_index in range(machines_amount):
+
+        nei= inst.machines[mech_index].neighborhood
+        loc= inst.machines[mech_index].location
+
+        if loc in inclusion:
+            inclusion[loc]= inclusion[loc] + [nei]
+        else:
+            inclusion[loc]= [nei]
+
+    print(inclusion)
+    print()
+
+
+
+
+
+
+
+
+
+
+    return
