@@ -179,6 +179,14 @@ class assignment():
             self.machine_assignment_list= machine_assignment_list
             return machine_assignment_list
 
+    def move_process(self,proc_index,mech_index):
+
+        if self.machine_assignment_list != None:
+            old_mech_index= self.assignment_list[proc_index]
+            self.machine_assignment_list[old_mech_index].remove(proc_index)
+            self.machine_assignment_list[mech_index].append(proc_index)
+
+        self.assignment_list[proc_index]= mech_index
 
 
 class solution():

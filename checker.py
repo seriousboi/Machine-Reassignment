@@ -2,7 +2,7 @@ from structures import *
 
 
 
-def assignment_checker(sol,check_consistency):
+def assignment_checker(sol,check_consistency,print_error):
 
     if check_consistency:
         if consistency_checker(sol) == False:
@@ -14,14 +14,14 @@ def assignment_checker(sol,check_consistency):
     dependency_constraints]
 
     for constraint in constraints:
-        if constraint(sol) == False:
+        if constraint(sol,print_error) == False:
             return False
 
     return True
 
 
 
-def consistency_checker(sol):
+def consistency_checker(sol,print_error):
     instance= sol.instance
     ass= sol.assignment
 
@@ -30,23 +30,26 @@ def consistency_checker(sol):
     assignment_size= len(ass.assignment_list)
 
     if assignment_size > processes_amount:
-        print("too many processes,",assignment_size,"instead of",processes_amount)
+        if print_error:
+            print("too many processes,",assignment_size,"instead of",processes_amount)
         return False
     if assignment_size < processes_amount:
-        print("too few processes,",assignment_size,"instead of",processes_amount)
+        if print_error:
+            print("too few processes,",assignment_size,"instead of",processes_amount)
         return False
 
 
     for i in range(assignment_size):
         if ass.assignment_list[i] >= machines_amount:
-            print("impossible assignment, process",i,"assigned to machine",str(ass.assignment_list[i])+", only",machines_amount,"machines")
+            if print_error:
+                print("impossible assignment, process",i,"assigned to machine",str(ass.assignment_list[i])+", only",machines_amount,"machines")
             return False
 
     return True
 
 
 
-def capacity_constraints(sol):
+def capacity_constraints(sol,print_error):
     instance= sol.instance
     ass= sol.assignment
 
@@ -60,14 +63,15 @@ def capacity_constraints(sol):
             total_usage= sol.get_resource_usage_on_machine(res_index,mech_index)
             hard_cap= mech.capacities[res_index]
             if total_usage > hard_cap:
-                print("not enough capacity,","resource",res_index,"on machine",mech_index,"with",hard_cap,"capacity and",total_usage,"usage by processes:",sol.assignment.machine_assignment_list[mech_index])
+                if print_error:
+                    print("not enough capacity,","resource",res_index,"on machine",mech_index,"with",hard_cap,"capacity and",total_usage,"usage by processes:",sol.assignment.machine_assignment_list[mech_index])
                 return False
 
     return True
 
 
 
-def conflict_constraints(sol):
+def conflict_constraints(sol,print_error):
     instance= sol.instance
     ass= sol.assignment
 
@@ -84,14 +88,15 @@ def conflict_constraints(sol):
             if serv in servs_on_mech[0:serv_on_mech_index]:
                 proc_index_1= machine_assignment[mech_index][find(servs_on_mech,serv)]
                 proc_index_2= machine_assignment[mech_index][serv_on_mech_index]
-                print("conflict, processes",proc_index_1,"and",proc_index_2,"from service",serv,"on machine",mech_index)
+                if print_error:
+                    print("conflict, processes",proc_index_1,"and",proc_index_2,"from service",serv,"on machine",mech_index)
                 return False
 
     return True
 
 
 
-def spread_constraints(sol):
+def spread_constraints(sol,print_error):
     instance= sol.instance
     ass= sol.assignment
 
@@ -102,14 +107,15 @@ def spread_constraints(sol):
         spread_min= instance.services[serv_index].spread
         spreading= len(servs_loc[serv_index])
         if spreading < spread_min:
-            print("service",serv_index,"not spread engouh,",spreading,"instead of",spread_min,"locations covered:",servs_loc[serv_index])
+            if print_error:
+                print("service",serv_index,"not spread engouh,",spreading,"instead of",spread_min,"locations covered:",servs_loc[serv_index])
             return False
 
     return True
 
 
 
-def dependency_constraints(sol):
+def dependency_constraints(sol,print_error):
     instance= sol.instance
     ass= sol.assignment
 
@@ -121,7 +127,8 @@ def dependency_constraints(sol):
             dependencies= instance.services[serv_index].dependencies
             for dependency in dependencies:
                 if dependency not in nei_servs[neighborhood]:
-                    print("dependency missing, service",dependency,"missing for service",serv_index,"in neighborhood",neighborhood)
+                    if print_error:
+                        print("dependency missing, service",dependency,"missing for service",serv_index,"in neighborhood",neighborhood)
                     return False
     return True
 
