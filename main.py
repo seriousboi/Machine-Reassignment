@@ -11,6 +11,8 @@ from sliding import *
 #print(total_cost_assesser(sol))
 #location_neighborhood_study()
 
+
+
 sliding_optimization(None,"a1_1")
 sliding_optimization(None,"a1_2")
 sliding_optimization(None,"a1_3")

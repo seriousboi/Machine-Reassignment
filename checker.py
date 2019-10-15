@@ -5,7 +5,7 @@ from structures import *
 def assignment_checker(sol,check_consistency,print_error):
 
     if check_consistency:
-        if consistency_checker(sol) == False:
+        if consistency_checker(sol,print_error) == False:
             return False
 
     constraints= [capacity_constraints,

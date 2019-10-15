@@ -205,10 +205,10 @@ def test_instance_speed(instance_name):
     load_time= time() - start
     sol= solution(inst.assignment,inst)
     print("load time:",round(load_time,2))
-    assignment_checker(sol,True)
+    assignment_checker(sol,True,True)
     check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
-    total_cost_assesser(sol)
+    print(total_cost_assesser(sol))
     assessment_time= time() - (start + load_time + check_time)
     print("assessment time:",round(assessment_time,2))
     print()

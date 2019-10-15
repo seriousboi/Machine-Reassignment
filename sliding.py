@@ -9,7 +9,7 @@ from copy import *
 
 def sliding_optimization(time_limit,instance_name):
     start= time()
-    print("loading instance")
+    print("loading instance "+instance_name)
     print()
     inst= load_instance(instance_name)
     print("finished loading")
@@ -63,5 +63,7 @@ def sliding_optimization(time_limit,instance_name):
 
     duration= time() - start
     print("found local optimum before time limit")
+    print("cost:",best_cost,"time:",round(duration))
+    print()
     generate_assignment_file(ass,"sliding "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum")
     return ass
