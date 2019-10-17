@@ -17,6 +17,7 @@ def sliding_optimization(time_limit,instance_name):
     ass= assignment(deepcopy(inst.assignment.assignment_list))
     sol= solution(ass,inst)
     best_cost= total_cost_assesser(sol)
+    initial_cost= best_cost
 
     processes_amount= len(inst.processes)
     machines_amount= len(inst.machines)
@@ -36,6 +37,8 @@ def sliding_optimization(time_limit,instance_name):
                     duration= time() - start
                     if duration >= time_limit:
                         print("time is up")
+                        print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
+                        print()
                         generate_assignment_file(ass,"sliding "+instance_name+" C"+str(best_cost)+" T"+str(round(duration)))
                         return
 
@@ -48,6 +51,7 @@ def sliding_optimization(time_limit,instance_name):
                     if new_cost < best_cost:
                         print("improvement_found: proc",proc_index,"to mech",mech_index)
                         print("new cost:",new_cost,"old cost:",best_cost)
+                        print("percentage of initial solution: "+str(round(100*new_cost/initial_cost,1))+"%")
                         print()
                         best_cost= new_cost
                         improvement_found=  True
@@ -63,7 +67,8 @@ def sliding_optimization(time_limit,instance_name):
 
     duration= time() - start
     print("found local optimum before time limit")
-    print("cost:",best_cost,"time:",round(duration))
+    print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
+    print("percentage of initial solution: "+str(round(100*new_cost/initial_cost,1))+"%")
     print()
     generate_assignment_file(ass,"sliding "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum")
     return ass
