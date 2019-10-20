@@ -41,7 +41,7 @@ def sliding_optimization_1(time_limit,instance_name):
                         print("percentage of initial solution: "+str(round(100*best_cost/initial_cost,1))+"%")
                         print()
                         generate_assignment_file(ass,"sliding_1 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration)))
-                        return
+                        return ass
 
                 old_mech_index= ass.assignment_list[proc_index]
                 ass.move_process(proc_index,mech_index)
@@ -56,7 +56,7 @@ def sliding_optimization_1(time_limit,instance_name):
                         print()
                         best_cost= new_cost
                         improvement_found=  True
-                        break ass
+                        break
 
                 ass.move_process(proc_index,old_mech_index)
 
