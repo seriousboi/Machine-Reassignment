@@ -8,12 +8,6 @@ from copy import *
 
 
 
-#inst.services[9].spread= 80
-#inst.services[15].dependencies= inst.services[15].dependencies + [20000]
-#print(assignment_checker(sol,True))
-#services_bug()
-
-
 def test_all_checkers_inst(times):
     for i in range(10):
         if i < 5:
@@ -208,7 +202,6 @@ def test_instance_speed(instance_name):
     assignment_checker(sol,True,True)
     check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
-    print(total_cost_assesser(sol))
     assessment_time= time() - (start + load_time + check_time)
     print("assessment time:",round(assessment_time,2))
     print()
@@ -281,14 +274,27 @@ def location_neighborhood_study_instance(instance_name):
 
     print(inclusion)
     print()
-
-
-
-
-
-
-
-
-
-
     return
+
+
+
+def test_optimization_a(algorithm,time_limit):
+    for i in range(10):
+        if i < 5:
+            instance_name= "a1_"+str(i+1)
+        else:
+            instance_name= "a2_"+str(i-4)
+        algorithm(time_limit,instance_name)
+
+
+
+def test_optimization_b(algorithm,time_limit):
+    for i in range(10):
+        instance_name= "b_"+str(i+1)
+        algorithm(time_limit,instance_name)
+
+
+
+def test_optimization(algorithm,time_limit):
+    test_optimization_a(algorithm,time_limit)
+    test_optimization_b(algorithm,time_limit)
