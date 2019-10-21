@@ -2,9 +2,19 @@ from structures import *
 from parsers import *
 from checker import *
 from assesser import *
+from sliding import *
 from random import *
 from time import *
 from copy import *
+from glob import *
+
+
+
+initial_costs= {
+"a1_1":49528750,"a1_2":1061649570,"a1_3":583662270,"a1_4":632499600,"a1_5":782189690,
+"a2_1":391189190,"a2_2":1876768120,"a2_3":2272487840,"a2_4":3223516130,"a2_5":787355300,
+"b_1":7644173180,"b_2":5181493830,"b_3":6336834660,"b_4":9209576380,"b_5":12426813010,"b_6":12749861240,"b_7":37946901700,"b_8":14068207250,"b_9":23234641520,"b_10":42220868760
+}
 
 
 
@@ -193,7 +203,7 @@ def test_dependency_costraints_checker(inst,times):
 
 
 def test_instance_speed(instance_name):
-    print("instance "+instance_name)
+    print("instance "+instance_name+":")
     start= time()
     inst= load_instance(instance_name)
     load_time= time() - start
@@ -202,6 +212,7 @@ def test_instance_speed(instance_name):
     assignment_checker(sol,True,True)
     check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
+    total_cost_assesser(sol)
     assessment_time= time() - (start + load_time + check_time)
     print("assessment time:",round(assessment_time,2))
     print()
@@ -298,3 +309,80 @@ def test_optimization_b(algorithm,time_limit):
 def test_optimization(algorithm,time_limit):
     test_optimization_a(algorithm,time_limit)
     test_optimization_b(algorithm,time_limit)
+
+
+
+def compare_optimization_instance(path,algo_name_1,algo_name_2,instance_name):
+    global initial_costs
+    path_length= len(path)
+    solution_data_1= glob(path+algo_name_1+" "+instance_name+"*")[0]
+    solution_data_1= solution_data_1[path_length-1:]
+    solution_data_2= glob(path+algo_name_2+" "+instance_name+"*")[0]
+    solution_data_2= solution_data_2[path_length-1:]
+
+    initial_cost= initial_costs[instance_name]
+    cost_1= int(find_word(solution_data_1,2)[1:])
+    cost_2= int(find_word(solution_data_2,2)[1:])
+    time_1= int(find_word(solution_data_1,3)[1:])
+    time_2= int(find_word(solution_data_2,3)[1:])
+
+    print("instance "+instance_name+":")
+    print("initial cost:",initial_cost,algo_name_1+": "+str(round(100*cost_1/initial_cost))+"%",algo_name_2+": "+str(round(100*cost_2/initial_cost))+"%")
+    print("time: "+algo_name_1+":",time_1,algo_name_2+":",time_2)
+    if find_word(solution_data_1,4) == "optimum":
+        if find_word(solution_data_2,4) == "optimum":
+            print("both found a local optimum")
+        else:
+            print(algo_name_1+" found a local optimum")
+    else:
+        if find_word(solution_data_2,4) == "optimum":
+            print(algo_name_2+" found a local optimum")
+        else:
+            print("both cut before local optimum")
+    print()
+
+    return
+
+
+
+def find_word(sentence,n):
+    return find_word_rec(sentence,0,len(sentence),n)
+
+
+
+def find_word_rec(sentence,start,stop,n):
+    if n == 0:
+        return sentence[start:find_end_of_word(sentence,start,stop)+1]
+    else:
+        return find_word_rec(sentence,find_end_of_word(sentence,start,stop)+2,stop,n-1)
+
+
+
+def find_end_of_word(sentence,start,stop):
+    for index in range(start,stop):
+        if sentence[index] == ' ':
+            return index - 1
+    return stop -1
+
+
+
+def compare_optimization_a(path,algo_name_1,algo_name_2):
+    for i in range(10):
+        if i < 5:
+            instance_name= "a1_"+str(i+1)
+        else:
+            instance_name= "a2_"+str(i-4)
+        compare_optimization_instance(path,algo_name_1,algo_name_2,instance_name)
+
+
+
+def compare_optimization_b(algorithm,time_limit):
+    for i in range(10):
+        instance_name= "b_"+str(i+1)
+        compare_optimization_instance(path,algo_name_1,algo_name_2,instance_name)
+
+
+
+def compare_optimization(algorithm,time_limit):
+    compare_optimization_a(algorithm,time_limit)
+    compare_optimization_b(algorithm,time_limit)

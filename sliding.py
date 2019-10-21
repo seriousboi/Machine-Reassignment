@@ -40,7 +40,7 @@ def sliding_optimization_1(time_limit,instance_name):
                         print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
                         print("percentage of initial solution: "+str(round(100*best_cost/initial_cost,1))+"%")
                         print()
-                        generate_assignment_file(ass,"sliding_1 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration)))
+                        generate_assignment_file(ass,"sliding_1 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" ")
                         return ass
 
                 old_mech_index= ass.assignment_list[proc_index]
@@ -71,7 +71,7 @@ def sliding_optimization_1(time_limit,instance_name):
     print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
     print("percentage of initial solution: "+str(round(100*best_cost/initial_cost,1))+"%")
     print()
-    generate_assignment_file(ass,"sliding_1 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum")
+    generate_assignment_file(ass,"sliding_1 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum ")
     return ass
 
 
@@ -109,7 +109,7 @@ def sliding_optimization_2(time_limit,instance_name):
                         print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
                         print("percentage of initial solution: "+str(round(100*best_cost/initial_cost,1))+"%")
                         print()
-                        generate_assignment_file(ass,"sliding_2 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration)))
+                        generate_assignment_file(ass,"sliding_2 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" ")
                         return ass
 
                 old_mech_index= ass.assignment_list[proc_index]
@@ -143,5 +143,5 @@ def sliding_optimization_2(time_limit,instance_name):
     print("instance:",instance_name,"cost:",best_cost,"instead of",initial_cost,"time:",round(duration))
     print("percentage of initial solution: "+str(round(100*best_cost/initial_cost,1))+"%")
     print()
-    generate_assignment_file(ass,"sliding_2 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum")
+    generate_assignment_file(ass,"sliding_2 "+instance_name+" C"+str(best_cost)+" T"+str(round(duration))+" optimum ")
     return ass
