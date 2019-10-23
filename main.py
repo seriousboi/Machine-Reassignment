@@ -10,3 +10,4 @@ from tests import *
 
 #location_neighborhood_study()
 compare_optimization_a("solutions//","sliding_1","sliding_2")
+etsh
