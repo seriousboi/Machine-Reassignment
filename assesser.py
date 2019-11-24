@@ -25,49 +25,66 @@ def load_cost_assesser(sol):
     resources_amount= len(instance.resources)
 
     load_cost= 0
-    for res_index in range(resources_amount):
-        resource_load_cost= 0
-        for mech_index in range(machines_amount):
-
-            machine_resource_usage= sol.get_resource_usage_on_machine(res_index,mech_index)
-            soft_cap= instance.machines[mech_index].safety_capacities[res_index]
-
-            resource_load_cost= resource_load_cost + max(0,machine_resource_usage-soft_cap)
-
-        weight= instance.resources[res_index].load_cost
-        load_cost= load_cost + resource_load_cost*weight
+    for mech_index in range(machines_amount):
+        load_cost= load_cost + machine_load_cost_assesser(sol,mech_index)
 
     return load_cost
 
 
 
-def balance_cost_assesser(sol):
+def machine_load_cost_assesser(sol,mech_index):
     instance= sol.instance
     ass= sol.assignment
 
-    machines_amount= len(instance.machines)
-    objectives_ammount= len(instance.objectives)
+    machine_load_cost= 0
+    resources_amount= len(instance.resources)
+    for res_index in range(resources_amount):
+
+        machine_resource_usage= sol.get_resource_usage_on_machine(res_index,mech_index)
+        soft_cap= instance.machines[mech_index].safety_capacities[res_index]
+        weight= instance.resources[res_index].load_cost
+        machine_load_cost= machine_load_cost + max(0,machine_resource_usage-soft_cap)*weight
+
+    return machine_load_cost
+
+
+
+def balance_cost_assesser(sol):
+    instance= sol.instance
 
     total_balance_cost= 0
-    for obj_index in range(objectives_ammount):
+    machines_amount= len(instance.machines)
+    for mech_index in range(machines_amount):
+
+        total_balance_cost= total_balance_cost + machine_balance_cost_assesser(sol,mech_index)
+
+    return total_balance_cost
+
+
+
+def machine_balance_cost_assesser(sol,mech_index):
+    instance= sol.instance
+    ass= sol.assignment
+
+    machine_balance_cost= 0
+    objectives_amount= len(instance.objectives)
+    for obj_index in range(objectives_amount):
+
         res_index_1= instance.objectives[obj_index].balance[0]
         res_index_2= instance.objectives[obj_index].balance[1]
         target= instance.objectives[obj_index].balance[2]
         weight= instance.objectives[obj_index].weight
 
-        balance_cost= 0
-        for mech_index in range(machines_amount):
-            res_usage_on_mech_1= sol.get_resource_usage_on_machine(res_index_1,mech_index)
-            res_usage_on_mech_2= sol.get_resource_usage_on_machine(res_index_2,mech_index)
-            hard_cap_1= instance.machines[mech_index].capacities[res_index_1]
-            hard_cap_2= instance.machines[mech_index].capacities[res_index_2]
-            unused_res_1= hard_cap_1 - res_usage_on_mech_1
-            unused_res_2= hard_cap_2 - res_usage_on_mech_2
+        res_usage_on_mech_1= sol.get_resource_usage_on_machine(res_index_1,mech_index)
+        res_usage_on_mech_2= sol.get_resource_usage_on_machine(res_index_2,mech_index)
+        hard_cap_1= instance.machines[mech_index].capacities[res_index_1]
+        hard_cap_2= instance.machines[mech_index].capacities[res_index_2]
+        unused_res_1= hard_cap_1 - res_usage_on_mech_1
+        unused_res_2= hard_cap_2 - res_usage_on_mech_2
 
-            balance_cost= balance_cost + max(0, target*unused_res_1 - unused_res_2)
+        machine_balance_cost= machine_balance_cost + max(0, target*unused_res_1 - unused_res_2)*weight
 
-        total_balance_cost= total_balance_cost + weight*balance_cost
-    return total_balance_cost
+    return machine_balance_cost
 
 
 
@@ -122,3 +139,92 @@ def machine_move_cost_assesser(sol):
             total_machine_move_cost= total_machine_move_cost + machine_move_cost
 
     return total_machine_move_cost
+
+
+
+def movement_total_delta_assesser(sol,old_cost,proc_index,mech_index):
+
+    load_delta= movement_load_delta_assesser(sol,old_cost,proc_index,mech_index)
+    balance_delta= movement_balance_delta_assesser(sol,old_cost,proc_index,mech_index)
+    process_move_delta= movement_process_delta_assesser(sol,old_cost,proc_index,mech_index)
+    service_move_delta= movement_service_delta_assesser(sol,old_cost,proc_index,mech_index)
+    machine_move_delta= movement_machine_delta_assesser(sol,old_cost,proc_index,mech_index)
+    delta= load_delta + balance_delta + process_move_delta + process_move_delta + service_move_delta + machine_move_delta
+
+    return delta
+
+
+
+def movement_load_delta_assesser(sol,old_cost,proc_index,new_mech_index):
+    instance= sol.instance
+    ass= sol.assignment
+    old_mech_index= ass.assignment_list[proc_index]
+
+    old_mech_old_load_cost= machine_load_cost_assesser(sol,old_mech_index)
+    new_mech_old_load_cost= machine_load_cost_assesser(sol,new_mech_index)
+
+    ass.move_process(proc_index,new_mech_index)
+    new_sol= solution(ass,instance)
+    old_mech_new_load_cost= machine_load_cost_assesser(new_sol,old_mech_index)
+    new_mech_new_load_cost= machine_load_cost_assesser(new_sol,new_mech_index)
+    ass.move_process(proc_index,old_mech_index)
+
+    mech_delta= old_mech_old_load_cost + new_mech_old_load_cost - old_mech_new_load_cost - new_mech_new_load_cost
+    return mech_delta
+
+
+
+def movement_balance_delta_assesser(sol,old_cost,proc_index,new_mech_index):
+    instance= sol.instance
+    ass= sol.assignment
+    old_mech_index= ass.assignment_list[proc_index]
+
+    old_mech_old_balance_cost= machine_balance_cost_assesser(sol,old_mech_index)
+    new_mech_old_balance_cost= machine_balance_cost_assesser(sol,new_mech_index)
+
+    ass.move_process(proc_index,new_mech_index)
+    new_sol= solution(ass,instance)
+    old_mech_new_balance_cost= machine_balance_cost_assesser(new_sol,old_mech_index)
+    new_mech_new_balance_cost= machine_balance_cost_assesser(new_sol,new_mech_index)
+    ass.move_process(proc_index,old_mech_index)
+
+    mech_delta= old_mech_old_balance_cost + new_mech_old_balance_cost - old_mech_new_balance_cost - new_mech_new_balance_cost
+    return mech_delta
+
+
+
+def movement_process_delta_assesser(sol,old_cost,proc_index,new_mech_index):
+    instance= sol.instance
+    ass= sol.assignment
+
+    old_mech_index= ass.assignment_list[proc_index]
+    og_mech_index= instance.assignment.assignment_list[proc_index]
+
+    mech_delta= 0
+    if old_mech_index == og_mech_index:
+        if new_mech_index != og_mech_index:
+            mech_delta= +instance.processes[proc_index].move_cost
+    else:
+        if new_mech_index == og_mech_index:
+            mech_delta= instance.processes[proc_index].move_cost
+
+    return mech_delta*instance.process_move_cost_weight
+
+
+
+def movement_service_delta_assesser(sol,old_cost,proc_index,new_mech_index):
+    #instance.service_move_cost_weight
+    return 0
+
+
+
+def movement_machine_delta_assesser(sol,old_cost,proc_index,new_mech_index):
+    instance= sol.instance
+    ass= sol.assignment
+
+    old_mech_index= ass.assignment_list[proc_index]
+    og_mech_index= instance.assignment.assignment_list[proc_index]
+
+    mech_delta= instance.machines[og_mech_index].move_costs[old_mech_index] - instance.machines[og_mech_index].move_costs[new_mech_index]
+
+    return mech_delta*instance.machine_move_cost_weight

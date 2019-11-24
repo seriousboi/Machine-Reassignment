@@ -213,7 +213,7 @@ def test_instance_speed(instance_name):
     assignment_checker(sol,True,True)
     check_time= time() - (start + load_time)
     print("check time:",round(check_time,2))
-    total_cost_assesser(sol)
+    print("initial_cost:",total_cost_assesser(sol))
     assessment_time= time() - (start + load_time + check_time)
     print("assessment time:",round(assessment_time,2))
     print()
@@ -387,3 +387,32 @@ def compare_optimization_b(algorithm,time_limit):
 def compare_optimization(algorithm,time_limit):
     compare_optimization_a(algorithm,time_limit)
     compare_optimization_b(algorithm,time_limit)
+
+
+
+def test_movement_total_delta_assesser(instance_name,times):
+    print(instance_name+":")
+    print()
+    inst= load_instance(instance_name)
+    ass= assignment(deepcopy(inst.assignment.assignment_list))
+    sol= solution(ass,inst)
+    initial_cost= total_cost_assesser(sol)
+    processes_amount= len(inst.processes)
+    machines_amount= len(inst.machines)
+
+    for time in range(times):
+        proc_index= randrange(processes_amount)
+        mech_index= randrange(machines_amount)
+        print("proc:",proc_index,"mech:",mech_index)
+        delta= movement_total_delta_assesser(sol,initial_cost,proc_index,mech_index)
+        print("delta:",delta)
+        new_sol= deepcopy(sol)
+        new_sol.assignment.move_process(proc_index,mech_index)
+        real_delta= initial_cost - total_cost_assesser(new_sol)
+        print("real delta:",real_delta)
+        load_cost_assesser(sol)
+        balance_cost_assesser(sol)
+        process_move_cost_assesser(sol)*instance.process_move_cost_weight
+        service_move_cost_assesser(sol)*instance.service_move_cost_weight
+        machine_move_cost_assesser(sol)*instance.machine_move_cost_weight
+        print()

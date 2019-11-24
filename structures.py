@@ -109,7 +109,6 @@ class resource():
 
 
 
-
 class machine():
     def __init__(self,neighborhood,location,capacities,safety_capacities,move_costs):
         self.neighborhood= neighborhood #integer
@@ -187,6 +186,7 @@ class assignment():
             self.machine_assignment_list[mech_index].append(proc_index)
 
         self.assignment_list[proc_index]= mech_index
+
 
 
 class solution():
