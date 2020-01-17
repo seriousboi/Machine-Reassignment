@@ -7,6 +7,7 @@ def total_cost_assesser(sol):
     ass= sol.assignment
 
     load_cost= load_cost_assesser(sol)
+    print(load_cost)
     balance_cost= balance_cost_assesser(sol)
     process_move_cost= process_move_cost_assesser(sol)*instance.process_move_cost_weight
     service_move_cost= service_move_cost_assesser(sol)*instance.service_move_cost_weight
@@ -170,6 +171,7 @@ def movement_load_delta_assesser(sol,old_cost,proc_index,new_mech_index):
     ass.move_process(proc_index,old_mech_index)
 
     mech_delta= old_mech_old_load_cost + new_mech_old_load_cost - old_mech_new_load_cost - new_mech_new_load_cost
+    print(mech_delta)
     return mech_delta
 
 
@@ -189,6 +191,7 @@ def movement_balance_delta_assesser(sol,old_cost,proc_index,new_mech_index):
     ass.move_process(proc_index,old_mech_index)
 
     mech_delta= old_mech_old_balance_cost + new_mech_old_balance_cost - old_mech_new_balance_cost - new_mech_new_balance_cost
+
     return mech_delta
 
 

@@ -403,16 +403,12 @@ def test_movement_total_delta_assesser(instance_name,times):
     for time in range(times):
         proc_index= randrange(processes_amount)
         mech_index= randrange(machines_amount)
+        old_mech_index= ass.assignment_list[proc_index]
         print("proc:",proc_index,"mech:",mech_index)
         delta= movement_total_delta_assesser(sol,initial_cost,proc_index,mech_index)
         print("delta:",delta)
-        new_sol= deepcopy(sol)
-        new_sol.assignment.move_process(proc_index,mech_index)
-        real_delta= initial_cost - total_cost_assesser(new_sol)
+        sol.assignment.move_process(proc_index,mech_index)
+        real_delta= initial_cost - total_cost_assesser(sol)
+        ass.move_process(proc_index,old_mech_index)
         print("real delta:",real_delta)
-        load_cost_assesser(sol)
-        balance_cost_assesser(sol)
-        process_move_cost_assesser(sol)*instance.process_move_cost_weight
-        service_move_cost_assesser(sol)*instance.service_move_cost_weight
-        machine_move_cost_assesser(sol)*instance.machine_move_cost_weight
         print()
