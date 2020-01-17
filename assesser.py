@@ -7,7 +7,6 @@ def total_cost_assesser(sol):
     ass= sol.assignment
 
     load_cost= load_cost_assesser(sol)
-    print(load_cost)
     balance_cost= balance_cost_assesser(sol)
     process_move_cost= process_move_cost_assesser(sol)*instance.process_move_cost_weight
     service_move_cost= service_move_cost_assesser(sol)*instance.service_move_cost_weight
